@@ -1,0 +1,12 @@
+name: dejavuoss
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9.16=h2782a2a_0_cpython
+  - pip:
+    - numpy
+    - scipy==1.10.1
+    - pytorch>=2.0.0
