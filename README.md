@@ -33,3 +33,8 @@ data\dataset_level_correlations_indices.npy
 ```
 The list is currated based on ResNet50 and Naive Bayes correlation detection classifiers trained on 300k examples (300 per class) chosen uniformly random from ImageNet training dataset.
 We share a list of dataset-level correlations based the intesection of two ResNet50-based correlation detection models trained with different random initialization seeds and a Naive Bayes classifer. Naive Bayes uses top 5 background annotations as input features.
+
+
+## License
+
+DejaVuOSS is licensed under the CC-BY-NC 4.0 license.

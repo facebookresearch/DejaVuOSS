@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 # Adapted from https://github.com/libffcv/ffcv-imagenet to support SSL
+
 import torch as ch
 from torch.cuda.amp import GradScaler
 from torch.cuda.amp import autocast
