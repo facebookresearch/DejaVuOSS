@@ -8,5 +8,13 @@ dependencies:
   - python=3.9.16=h2782a2a_0_cpython
   - pip:
     - numpy
+    - pytorch-cuda=11.7
+    - pandas==1.5.3
+    - torch==2.1.0
+    - torchaudio==2.1.0
+    - torchmetrics==0.8.2
+    - torchvision==0.16.0
+    - tqdm==4.65.0
+    - scikit-learn==0.24.1
     - scipy==1.10.1
-    - pytorch>=2.0.0
+prefix: /private/home/narine/.conda/envs/dejavuoss

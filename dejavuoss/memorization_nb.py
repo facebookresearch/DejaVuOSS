@@ -18,10 +18,10 @@ from pathlib import Path
 Command to run the script
 
 python memorization_nb.py --input_path "outputs_knn_success" \
-					         --output_path "outputs_knn_success" \
-  						 --imagenet_label_path /datasets01/imagenet_full_size/061417/labels.txt \
-						 --label_topk 3  \
- 						 --smooth 1e-10 
+					      --output_path "outputs_knn_success" \
+  						  --imagenet_label_path <PATH-TO-IMAGENET>/061417/labels.txt \
+						  --label_topk 3  \
+ 						  --smooth 1e-10 
 '''
 
 def most_conf_frac(scores, frac): 
