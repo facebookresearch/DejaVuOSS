@@ -20,7 +20,7 @@ Descibe pip install here ...
 Create a new conda environment and activate it.
 
 ```
-conda create -n dejavuoss -f environment.yml
+conda create -f environment.yml
 
 conda activate dejavuoss
 
@@ -30,7 +30,7 @@ Below we describe how to train ResNet and Naive Bayes datast-level correlation d
 
 ## Training ResNet Correlation Classifier
 ### Generating background crops for images
-To generate the background crops for ResNet run:
+To generate the background crops for ImageNet run:
 ```
 python dejavuoss/crop_images.py --save_pth <DATA-HOME>/dejavu/imagenet/300_per_class_B \
                                 --bbox_idx_pth <DATA-HOME>/imagenet_partition_out/300_per_class/bbox_B.npy \
@@ -95,21 +95,20 @@ python memorization_nb.py --input_path <OUTPUT-HOME>/outputs_nb_trainA_testB \
 
 The attack is conducted similar to the original [DejaVu](https://github.com/facebookresearch/DejaVu) paper.
 
-python label_inference_attack_vicreg_oob.py \
-	--local 0 \
-    --resnet50 \
-	--loss vicreg \
-	--output_dir <LOGGING_FOLDER>/vicreg/attack_sweeps/NN_attk_vicreg \
-    --public_idx_pth $INDEX_FOLDER/300_per_class/public.npy  \
-    --test_idx_pth $INDEX_FOLDER/300_per_class/bbox_A.npy  \
-    --valid_idx_pth $INDEX_FOLDER/300_per_class/bbox_B.npy \
-    --imgnet_train_pth $IMAGENET_DATASET_TRAIN_DIR  \
-    --imgnet_valid_pth $IMAGENET_DATASET_TRAIN_DIR   \
-    --imgnet_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
-    --imgnet_valid_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
-    --use_backbone 0  \
-	--k 100 \
-	--k_attk 100 
+python label_inference_attack_vicreg_oob.py --local 0 \
+                                            --resnet50 \
+                                            --loss vicreg \
+                                            --output_dir <LOGGING_FOLDER>/vicreg/attack_sweeps/NN_attk_vicreg \
+                                            --public_idx_pth $INDEX_FOLDER/300_per_class/public.npy  \
+                                            --test_idx_pth $INDEX_FOLDER/300_per_class/bbox_A.npy  \
+                                            --valid_idx_pth $INDEX_FOLDER/300_per_class/bbox_B.npy \
+                                            --imgnet_train_pth $IMAGENET_DATASET_TRAIN_DIR  \
+                                            --imgnet_valid_pth $IMAGENET_DATASET_TRAIN_DIR   \
+                                            --imgnet_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
+                                            --imgnet_valid_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
+                                            --use_backbone 0  \
+                                            --k 100 \
+                                            --k_attk 100 
 
 ## A list of ImageNet ids with highest dataset-level correlations based on the ResNet50 and NB correlation detection clasifiers.
 The list can be found under:
