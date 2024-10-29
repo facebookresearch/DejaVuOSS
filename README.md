@@ -94,7 +94,7 @@ python memorization_nb.py --input_path <OUTPUT-HOME>/outputs_nb_trainA_testB \
 ## Running the Attack on VicReg OSS model
 
 The attack is conducted similar to the original [DejaVu](https://github.com/facebookresearch/DejaVu) paper.
-
+```
 python label_inference_attack_vicreg_oob.py --local 0 \
                                             --resnet50 \
                                             --loss vicreg \
@@ -109,7 +109,7 @@ python label_inference_attack_vicreg_oob.py --local 0 \
                                             --use_backbone 0  \
                                             --k 100 \
                                             --k_attk 100 
-
+```
 ## A list of ImageNet ids with highest dataset-level correlations based on the ResNet50 and NB correlation detection clasifiers.
 The list can be found under:
 ```
