@@ -12,6 +12,7 @@ import numpy as np
 import torchvision
 import argparse
 from utils.image_common import AuxDataset, InverseTransform
+from torchvision import transforms
 from pathlib import Path
 from PIL import Image
 from collections import Counter
@@ -44,19 +45,6 @@ class SSL_Transform:
         
     def __call__(self, x): 
        return self.ssl_xfrm(x)
-
-class SSL_Transform2:
-    def __init__(self):
-        resolution = 224
-        res_tuple = (resolution, resolution)
-        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
-        image_pipeline = [
-            cropper,
-            ToTensor(),
-            ToDevice(ch.device(this_device), non_blocking=True),
-            ToTorchImage(),
-            NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16)
-        ]
 
 def save_images(iTrans, patch, sample, root_path, folder, fname):
     patch = iTrans(patch)

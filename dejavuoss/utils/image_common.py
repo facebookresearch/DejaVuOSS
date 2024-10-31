@@ -154,6 +154,29 @@ class crop_xfrm:
         #transform for SSL 
         return self.xfrm(crop)
 
+
+class CropDataset(torchvision.datasets.ImageFolder): 
+    def __init__(self, im_pth, indices, crop_frac = 0.3): 
+        super().__init__(
+            im_pth, 
+            transform = None 
+        )
+        self.cropper = crop_xfrm(crop_frac = crop_frac) 
+        self.indices = indices 
+        
+    def __len__(self): 
+        return len(self.indices)
+        
+    def __getitem__(self, index: int):
+        #return lower left corner crop of image 
+        index = self.indices[index]
+        path, target = self.samples[index]
+        sample = self.loader(path)
+        given = self.cropper(sample)
+        good = 1 
+        return given, good, index 
+
+
 class AuxDataset(torchvision.datasets.ImageFolder):
     """pytorch dataset that returns a patch of an image outside of the bounding boxes
     along with the image index. The patch must have side lengths (in pixels) above a 

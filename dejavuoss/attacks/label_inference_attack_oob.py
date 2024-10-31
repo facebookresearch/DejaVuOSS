@@ -28,9 +28,15 @@ from itertools import groupby, chain
 from operator import itemgetter
 
 #for loading datasets: 
-from dejavu_utils.utils import (aux_dataset, crop_dataset, 
-                                ImageFolderIndex, stopwatch, 
-                                SSLNetwork, SSL_Transform, load_vicreg_proj_weights)
+from dejavuoss.utils.common import (AuxDataset,
+                                    CropDataset, 
+                                    ImageFolderIndex,
+                                    stopwatch, 
+                                    SSLNetwork,
+                                    SSL_Transform,
+                                    load_vicreg_proj_weights,
+                                    load_barlow_proj_weights,
+                                    load_dino_proj_weights)
 
 def parse_args():
     parser = argparse.ArgumentParser("Submitit for NN Attack")
@@ -44,10 +50,10 @@ def parse_args():
     parser.add_argument("--output_dir", type=Path) 
 
     #attack args
-    parser.add_argument("--model_A_pth", type=Path) 
+    parser.add_argument("--model_oss_pth", type=Path) 
     parser.add_argument("--mlp", type=str, default='8192-8192-8192') 
     parser.add_argument("--use_backbone", type=int, default=0) 
-    parser.add_argument("--loss", type=str, default='barlow') 
+    parser.add_argument("--loss", type=str, default='vicreg') 
     parser.add_argument("--use_supervised_linear", type=int, default=0) 
     parser.add_argument("--use_corner_crop", action='store_true')
     parser.add_argument("--corner_crop_frac", type=float, default=0.3)
@@ -63,8 +69,7 @@ def parse_args():
     parser.add_argument("--k_attk", type=int, default=100, 
             help="number of neighbors to use in attack") 
     parser.add_argument("--resnet50", action='store_true')
-             
-    
+
     return parser.parse_args()
 
 #NN_adversary(model_A, public_loader, args.gpu, args.k, args.k_attk, args.use_backbone)
@@ -280,19 +285,29 @@ def main(args):
     else:
         arch = 'resnet101'
 
-    resnet50_vicreg_intern = SSLNetwork(arch = arch, 
+    resnet50_intern = SSLNetwork(arch = arch, 
                                         remove_head = 0, 
                                         mlp = args.mlp, 
                                         fc = 0,
                                         patch_keep = 1.0,
                                         loss = args.loss).cuda()
+    resnet50_path = args.model_oss_pth #'resnet50/resnet50_fullckpt.pth'
+    ckpt = torch.load(resnet50_path, map_location='cuda')
+    weights = ckpt['model']
 
-    resnet50_vicreg_intern = torch.nn.parallel.DistributedDataParallel(resnet50_vicreg_intern,
-                                                                       device_ids=[args.gpu])
- 
-    ckpt = torch.load(args.model_A_pth, map_location='cpu')
-    resnet50_vicreg_intern.load_state_dict(ckpt['model'], strict = True)
-    _ = resnet50_vicreg_intern.eval()
+    for key in list(weights.keys()):
+        weights[key.replace('backbone', 'net')] = weights.pop(key)
+
+    resnet50_intern.load_state_dict(weights, strict = False)
+
+    if args.loss == 'vicreg':
+        load_vicreg_proj_weights(resnet50_intern, ckpt)
+    elif args.loss == 'barlow':
+        load_barlow_proj_weights(resnet50_intern, ckpt)
+    elif args.loss == 'dino':
+        load_dino_proj_weights(resnet50_intern, ckpt)
+
+    _ = resnet50_intern.eval()
 
     #Get datasets
     #bbox set A 
@@ -305,17 +320,17 @@ def main(args):
     #test_loader = DataLoader(test_set, batch_size = 64, shuffle = False, num_workers=8)
     test_idx = np.load(args.test_idx_pth)
     if not args.use_corner_crop: 
-        aux_set_test = aux_dataset(args.imgnet_train_pth, args.imgnet_bbox_pth, test_idx)
+        aux_set_test = AuxDataset(args.imgnet_train_pth, args.imgnet_bbox_pth, test_idx)
     else: 
-        aux_set_test = crop_dataset(args.imgnet_train_pth, test_idx, crop_frac = args.corner_crop_frac)
+        aux_set_test = CropDataset(args.imgnet_train_pth, test_idx, crop_frac = args.corner_crop_frac)
 
     aux_loader_test = DataLoader(aux_set_test, batch_size = 64, num_workers = 8, shuffle = True)
     
     valid_idx = np.load(args.valid_idx_pth)
     if not args.use_corner_crop:
-        aux_set_valid = aux_dataset(args.imgnet_valid_pth, args.imgnet_valid_bbox_pth, valid_idx)
+        aux_set_valid = AuxDataset(args.imgnet_valid_pth, args.imgnet_valid_bbox_pth, valid_idx)
     else:
-        aux_set_valid = crop_dataset(args.imgnet_valid_pth, valid_idx, crop_frac = args.corner_crop_frac)
+        aux_set_valid = CropDataset(args.imgnet_valid_pth, valid_idx, crop_frac = args.corner_crop_frac)
 
     aux_loader_valid = DataLoader(aux_set_valid, batch_size = 64, num_workers = 8, shuffle = True)
 
@@ -325,14 +340,14 @@ def main(args):
 
     #Now attack test set with adversary A 
 
-    adv_test_attk_A = NN_adversary(resnet50_vicreg_intern, knn_loader, args)
+    adv_test_attk_A = NN_adversary(resnet50_intern, knn_loader, args)
     adv_test_attk_A.build_index()
     adv_test_attk_A.get_neighbors(aux_loader_test)
     #free gpu memory 
     adv_test_attk_A.index.reset()
 
     #Now attack sets A & B with adversary A 
-    adv_valid_attk_A = NN_adversary(resnet50_vicreg_intern, knn_loader, args)
+    adv_valid_attk_A = NN_adversary(resnet50_intern, knn_loader, args)
     adv_valid_attk_A.build_index()
     adv_valid_attk_A.get_neighbors(aux_loader_valid)
     #free gpu memory 

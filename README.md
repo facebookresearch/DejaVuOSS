@@ -11,10 +11,6 @@ It is inspired by [DejaVu](https://github.com/facebookresearch/DejaVu) paper and
 
 ##### Installing 
 
-**with latest pip and conda release
-
-Descibe pip install here ... 
-
 **with `conda`**
 
 Create a new conda environment and activate it.
@@ -95,20 +91,21 @@ python memorization_nb.py --input_path <OUTPUT-HOME>/outputs_nb_trainA_testB \
 
 The attack is conducted similar to the original [DejaVu](https://github.com/facebookresearch/DejaVu) paper.
 ```
-python label_inference_attack_vicreg_oob.py --local 0 \
-                                            --resnet50 \
-                                            --loss vicreg \
-                                            --output_dir <LOGGING_FOLDER>/vicreg/attack_sweeps/NN_attk_vicreg \
-                                            --public_idx_pth $INDEX_FOLDER/300_per_class/public.npy  \
-                                            --test_idx_pth $INDEX_FOLDER/300_per_class/bbox_A.npy  \
-                                            --valid_idx_pth $INDEX_FOLDER/300_per_class/bbox_B.npy \
-                                            --imgnet_train_pth $IMAGENET_DATASET_TRAIN_DIR  \
-                                            --imgnet_valid_pth $IMAGENET_DATASET_TRAIN_DIR   \
-                                            --imgnet_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
-                                            --imgnet_valid_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
-                                            --use_backbone 0  \
-                                            --k 100 \
-                                            --k_attk 100 
+python label_inference_attack_oob.py --local 0 \
+                                     --resnet50 \
+                                     --loss vicreg \
+                                     --model_oss_pth <PATH-TO-OSS-MODEL-CHECKPOINT> \
+                                     --output_dir <LOGGING_FOLDER>/vicreg/attack_sweeps/NN_attk_vicreg \
+                                     --public_idx_pth $INDEX_FOLDER/300_per_class/public.npy  \
+                                     --test_idx_pth $INDEX_FOLDER/300_per_class/bbox_A.npy  \
+                                     --valid_idx_pth $INDEX_FOLDER/300_per_class/bbox_B.npy \
+                                     --imgnet_train_pth $IMAGENET_DATASET_TRAIN_DIR  \
+                                     --imgnet_valid_pth $IMAGENET_DATASET_TRAIN_DIR   \
+                                     --imgnet_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
+                                     --imgnet_valid_bbox_pth  $IMAGENET_BBOX_ANNOTATIONS \
+                                     --use_backbone 0  \
+                                     --k 100 \
+                                     --k_attk 100 
 ```
 ## A list of ImageNet ids with highest dataset-level correlations based on the ResNet50 and NB correlation detection clasifiers.
 The list can be found under:
